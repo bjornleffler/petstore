@@ -1,0 +1,5 @@
+java -jar openapi-generator-cli.jar validate -i petstore.yaml
+java -jar openapi-generator-cli.jar generate   -g spring -i petstore.yaml -o petstore -p hideGenerationTimestamp=true,skipDefaultInterface=false,interfaceOnly=false,useSpringBoot3=true
+(cd petstore; mvn clean package)
+(cd petstore; mvn spring-boot:run)
+# java -jar petstore/target/openapi-spring-1.0.0.jar
