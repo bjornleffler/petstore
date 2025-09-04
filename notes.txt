@@ -1,5 +1,13 @@
+# Validate openAPI spec.
 java -jar openapi-generator-cli.jar validate -i petstore.yaml
-java -jar openapi-generator-cli.jar generate   -g spring -i petstore.yaml -o petstore -p hideGenerationTimestamp=true,skipDefaultInterface=false,interfaceOnly=false,useSpringBoot3=true
+
+# Generate Java code with spring boot 3.
+java -jar openapi-generator-cli.jar generate -g spring -i petstore.yaml -o petstore -p hideGenerationTimestamp=true,skipDefaultInterface=false,interfaceOnly=false,useSpringBoot3=true,delegatePattern=true
+
+# Build code. Ignore unit test failures.
 (cd petstore; mvn clean package)
+
+# Run service.
 (cd petstore; mvn spring-boot:run)
+
 # java -jar petstore/target/openapi-spring-1.0.0.jar
