@@ -281,5 +281,14 @@ public class Pet {
     }
     return o.toString().replace("\n", "\n    ");
   }
-}
 
+  // Added by Bjorn
+  public boolean hasTags(List<String> tags) {
+      if (tags == null) {
+          return false;
+      }
+      List<String> values = this.tags.stream().map(t -> t.getName()).toList();
+      System.out.println("BJORN Pet ID " + this.id + " has tags: " + values + " looking for: " + tags + " result: " + values.containsAll(tags));
+      return values.containsAll(tags);
+  }
+}

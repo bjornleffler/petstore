@@ -16,12 +16,23 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
+// Added by Bjorn.
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ConcurrentHashMap;
+
+
 /**
  * A delegate to be called by the {@link PetApiController}}.
  * Implement this interface with a {@link org.springframework.stereotype.Service} annotated class.
  */
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.15.0")
 public interface PetApiDelegate {
+
+    // Added by Bjorn.
+    Map<Long, Pet> pets = new ConcurrentHashMap<>();
+    AtomicLong idCounter = new AtomicLong();
 
     default Optional<NativeWebRequest> getRequest() {
         return Optional.empty();
@@ -37,22 +48,11 @@ public interface PetApiDelegate {
      * @see PetApi#addPet
      */
     default ResponseEntity<Pet> addPet(Pet pet) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"photoUrls\" : [ \"photoUrls\", \"photoUrls\" ], \"name\" : \"doggie\", \"id\" : 0, \"category\" : { \"name\" : \"name\", \"id\" : 6 }, \"tags\" : [ { \"name\" : \"name\", \"id\" : 1 }, { \"name\" : \"name\", \"id\" : 1 } ], \"status\" : \"available\" }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/xml"))) {
-                    String exampleString = "<Pet> <id>123456789</id> <Category> <id>123456789</id> <name>aeiou</name> </Category> <name>doggie</name> <photoUrls> <photoUrls>aeiou</photoUrls> </photoUrls> <tags> <Tag> <id>123456789</id> <name>aeiou</name> </Tag> </tags> <status>aeiou</status> </Pet>";
-                    ApiUtil.setExampleResponse(request, "application/xml", exampleString);
-                    break;
-                }
-            }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+        System.out.println("BJORN Add pet. Name: " + pet.getName() + " Status: " + pet.getStatus());
+        long id = idCounter.incrementAndGet();
+        pet.setId(id);
+        pets.put(id, pet);
+        return ResponseEntity.ok(pet);
     }
 
     /**
@@ -64,10 +64,13 @@ public interface PetApiDelegate {
      * @return Invalid pet value (status code 400)
      * @see PetApi#deletePet
      */
-    default ResponseEntity<Void> deletePet(Long petId,
-        String apiKey) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+    default ResponseEntity<Void> deletePet(Long petId, String apiKey) {
+        System.out.println("BJORN Delete pet. ID: " + petId);
+        if (pets.get(petId) == null) {
+            return ResponseEntity.notFound().build();
+        }
+        pets.remove(petId);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -80,22 +83,16 @@ public interface PetApiDelegate {
      * @see PetApi#findPetsByStatus
      */
     default ResponseEntity<List<Pet>> findPetsByStatus(List<String> status) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "[ { \"photoUrls\" : [ \"photoUrls\", \"photoUrls\" ], \"name\" : \"doggie\", \"id\" : 0, \"category\" : { \"name\" : \"name\", \"id\" : 6 }, \"tags\" : [ { \"name\" : \"name\", \"id\" : 1 }, { \"name\" : \"name\", \"id\" : 1 } ], \"status\" : \"available\" }, { \"photoUrls\" : [ \"photoUrls\", \"photoUrls\" ], \"name\" : \"doggie\", \"id\" : 0, \"category\" : { \"name\" : \"name\", \"id\" : 6 }, \"tags\" : [ { \"name\" : \"name\", \"id\" : 1 }, { \"name\" : \"name\", \"id\" : 1 } ], \"status\" : \"available\" } ]";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/xml"))) {
-                    String exampleString = "<Pet> <id>123456789</id> <Category> <id>123456789</id> <name>aeiou</name> </Category> <name>doggie</name> <photoUrls> <photoUrls>aeiou</photoUrls> </photoUrls> <tags> <Tag> <id>123456789</id> <name>aeiou</name> </Tag> </tags> <status>aeiou</status> </Pet>";
-                    ApiUtil.setExampleResponse(request, "application/xml", exampleString);
-                    break;
-                }
-            }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+        System.out.println("BJORN Find pets by status: " + status);
+        Collection<Pet> values = pets.values();
+        if (values.isEmpty()) {
+            List<Pet> emptyList = List.of();
+            return ResponseEntity.ok(emptyList);
+        }
+        List<Pet> result = values.stream()
+                .filter(p -> status.contains(p.getStatus().toString()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -110,22 +107,16 @@ public interface PetApiDelegate {
      */
     @Deprecated
     default ResponseEntity<List<Pet>> findPetsByTags(List<String> tags) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "[ { \"photoUrls\" : [ \"photoUrls\", \"photoUrls\" ], \"name\" : \"doggie\", \"id\" : 0, \"category\" : { \"name\" : \"name\", \"id\" : 6 }, \"tags\" : [ { \"name\" : \"name\", \"id\" : 1 }, { \"name\" : \"name\", \"id\" : 1 } ], \"status\" : \"available\" }, { \"photoUrls\" : [ \"photoUrls\", \"photoUrls\" ], \"name\" : \"doggie\", \"id\" : 0, \"category\" : { \"name\" : \"name\", \"id\" : 6 }, \"tags\" : [ { \"name\" : \"name\", \"id\" : 1 }, { \"name\" : \"name\", \"id\" : 1 } ], \"status\" : \"available\" } ]";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/xml"))) {
-                    String exampleString = "<Pet> <id>123456789</id> <Category> <id>123456789</id> <name>aeiou</name> </Category> <name>doggie</name> <photoUrls> <photoUrls>aeiou</photoUrls> </photoUrls> <tags> <Tag> <id>123456789</id> <name>aeiou</name> </Tag> </tags> <status>aeiou</status> </Pet>";
-                    ApiUtil.setExampleResponse(request, "application/xml", exampleString);
-                    break;
-                }
-            }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+        System.out.println("BJORN Find pets by tags: " + tags);
+        Collection<Pet> values = pets.values();
+        if (values.isEmpty()) {
+            List<Pet> emptyList = List.of();
+            return ResponseEntity.ok(emptyList);
+        }
+        List<Pet> result = values.stream()
+                .filter(p -> p.hasTags(tags))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -139,22 +130,12 @@ public interface PetApiDelegate {
      * @see PetApi#getPetById
      */
     default ResponseEntity<Pet> getPetById(Long petId) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"photoUrls\" : [ \"photoUrls\", \"photoUrls\" ], \"name\" : \"doggie\", \"id\" : 0, \"category\" : { \"name\" : \"name\", \"id\" : 6 }, \"tags\" : [ { \"name\" : \"name\", \"id\" : 1 }, { \"name\" : \"name\", \"id\" : 1 } ], \"status\" : \"available\" }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/xml"))) {
-                    String exampleString = "<Pet> <id>123456789</id> <Category> <id>123456789</id> <name>aeiou</name> </Category> <name>doggie</name> <photoUrls> <photoUrls>aeiou</photoUrls> </photoUrls> <tags> <Tag> <id>123456789</id> <name>aeiou</name> </Tag> </tags> <status>aeiou</status> </Pet>";
-                    ApiUtil.setExampleResponse(request, "application/xml", exampleString);
-                    break;
-                }
-            }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+        Pet pet = pets.get(petId);
+        System.out.println("BJORN Get pet by ID " + petId + " Result: " + pet);
+        if (pet == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(pet);
     }
 
     /**
@@ -170,23 +151,19 @@ public interface PetApiDelegate {
      * @see <a href="http://petstore.swagger.io/v2/doc/updatePet">Update an existing pet Documentation</a>
      * @see PetApi#updatePet
      */
-    default ResponseEntity<Pet> updatePet(Pet pet) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"photoUrls\" : [ \"photoUrls\", \"photoUrls\" ], \"name\" : \"doggie\", \"id\" : 0, \"category\" : { \"name\" : \"name\", \"id\" : 6 }, \"tags\" : [ { \"name\" : \"name\", \"id\" : 1 }, { \"name\" : \"name\", \"id\" : 1 } ], \"status\" : \"available\" }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/xml"))) {
-                    String exampleString = "<Pet> <id>123456789</id> <name>doggie</name> <photoUrls> <photoUrls>aeiou</photoUrls> </photoUrls> <tags> </tags> <status>aeiou</status> </Pet>";
-                    ApiUtil.setExampleResponse(request, "application/xml", exampleString);
-                    break;
-                }
-            }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
+    default ResponseEntity<Pet> updatePet(Pet input) {
+        Pet pet = pets.get(input.getId());
+        if (pet == null) {
+            return ResponseEntity.notFound().build();
+        }
+        System.out.println("BJORN Update pet with ID " + input.getId() + " Name: " + input.getName() + " Status: " + input.getStatus());
+        pet.setName(input.getName());
+        pet.setCategory(input.getCategory());
+        pet.setPhotoUrls(input.getPhotoUrls());
+        pet.setTags(input.getTags());
+        pet.setStatus(input.getStatus());
+        pets.put(input.getId(), pet);
+        return ResponseEntity.ok(pet);
     }
 
     /**

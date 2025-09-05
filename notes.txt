@@ -11,3 +11,29 @@ java -jar openapi-generator-cli.jar generate -g spring -i petstore.yaml -o petst
 (cd petstore; mvn spring-boot:run)
 
 # java -jar petstore/target/openapi-spring-1.0.0.jar
+
+
+# --- Sample queries ---
+
+curl -X POST \
+  'http://10.33.33.2:8080/v2/pet' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "cody",
+  "category": {"id": 1, "name": "dog"},
+  "status": "available",
+  "tags": [{"id": 1, "name": "border_collie"},{"id": 2, "name": "happy"}]
+}'
+
+# Get pet #1.
+curl -i -X GET -H 'Content-Type: application/json' -H 'accept: application/json' 10.33.33.2:8080/v2/pet/1
+
+# Find pet by status.
+curl -i -X GET -H 'Content-Type: application/json' -H 'accept: application/json' 10.33.33.2:8080/v2/pet/findByStatus?status=available
+
+# Find pet by tag.
+curl -i -H 'Content-Type: application/json' -H 'accept: application/json' 10.33.33.2:8080/v2/pet/findByTags?tags=happy
+
+# Delete pet #1.
+curl -i -X DELETE -H 'Content-Type: application/json' -H 'accept: application/json' 10.33.33.2:8080/v2/pet/1
